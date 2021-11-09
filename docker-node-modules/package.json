@@ -1,0 +1,27 @@
+{
+  "name": "docker-compose-node-modules",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./app/index.js",
+  "license": "MIT",
+  "author": "Martin Krause",
+  "keywords": [],
+  "scripts": {
+    "start": "nodemon ./app/main.js",
+    "test": "jest",
+    "jest-watch": "jest --watchAll",
+    "eslint-watch": "npx esw --watch ./app/**/*.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.1.0",
+    "eslint-watch": "7.0.0",
+    "jest": "^27.3.1",
+    "nodemon": "^2.0.14"
+  },
+  "bugs": {
+    "url": "https://github.com/martinkr/lakka/issues"
+  }
+}

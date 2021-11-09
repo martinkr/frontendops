@@ -1,0 +1,90 @@
+
+version: "3.0"
+services:
+
+    dockerized-node:
+        image: node:17.0.1-alpine3.14
+        working_dir: /home/node
+        ports:
+            - "3100:3000"
+        volumes:
+            # get node_modules from shared volume
+            - "shared-node-modules:/home/node/node_modules/"
+            - "./app:/home/node/app"
+            - "./package.json:/home/node/package.json"
+        depends_on:
+            - node-modules
+        command:
+            # start the application
+            ["npm", "start" ]
+        environment:
+            - NODE_ENV=development
+
+    # assumption: this just shares the node modules
+    node-modules:
+        build:
+            context: .
+            dockerfile: ./docker/node-modules/Dockerfile
+        volumes:
+            # create a named volume "node_modules"
+            - "shared-node-modules:/home/node/node_modules/"
+        command:
+            # keep the container running
+            "tail -f /dev/null"
+
+    # shell
+    node-shell:
+        image: node:17.0.1-alpine3.14
+        working_dir: /home/node
+        volumes:
+            # get node_modules from shared volume
+            - "shared-node-modules:/home/node/node_modules/"
+            # map all required files for this image 
+            - "./app:/home/node/app"
+            - "./test:/home/node/test"
+            - "./package.json:/home/node/package.json"
+            - "./.eslintrc.js:/home/node/.eslintrc.js:ro"
+            - "./.eslintignore:/home/node/.eslintignore:ro"
+            - "./yarn.lock:/home/node/yarn.lock"
+        depends_on:
+            - node-modules
+        command:
+            "tail -f /dev/null"
+
+    # container for eslint watcher
+    node-eslint-watch:
+        image: node:17.0.1-alpine3.14
+        working_dir: /home/node
+        volumes:
+            # get node_modules from shared volume
+            - "shared-node-modules:/home/node/node_modules/:ro"
+            # map all required files for this image 
+            - "./app:/home/node/app:ro"
+            - "./.eslintrc.js:/home/node/.eslintrc.js:ro"
+            - "./.eslintignore:/home/node/.eslintignore:ro"
+            - "./package.json:/home/node/package.json:ro"
+        depends_on:
+            - node-modules
+            - node-shell
+        command:
+            "yarn run eslint-watch"
+
+    # container for test watcher
+    node-test-watch:
+        image: node:17.0.1-alpine3.14
+        working_dir: /home/node
+        volumes:
+            # get node_modules from shared volume
+            - "shared-node-modules:/home/node/node_modules/:ro"
+            # map all required files for this image 
+            - "./app:/home/node/app:ro"
+            - "./test:/home/node/test:ro"
+            - "./package.json:/home/node/package.json:ro"
+        depends_on:
+            - node-modules
+            - node-shell
+        command:
+            "yarn run jest-watch"
+
+volumes:
+    shared-node-modules:

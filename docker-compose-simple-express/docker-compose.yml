@@ -1,0 +1,27 @@
+version: "3.7"
+services:
+    # name your container
+    dockerized-node:
+        # we build our image FROM 
+        # the official node image 
+        # node v17.0.1 running on alpine v3.14 linux
+        image: node:17.0.1-alpine3.14
+        # the application inside the container is 
+        # listening to the port 3000 so we EXPOSE
+        # port 3000 and map it to the container's 3100 port
+        # the application is available at localhost:3100 or 0.0.0.0:3100
+        ports:
+            - "3100:3000"
+        # we are syncing the folder "local_app" from the host 
+        # into the container's /app folder. 
+        volumes:
+            - ./local_app:/app/
+        # we set the working dir to /app
+        working_dir: /app
+        # and are starting the application with "$ npm start" 
+        # as soon as we start the container
+        command:
+            ["npm", "start" ]
+        # set some environment variables just because
+        environment:
+            - NODE_ENV=development
